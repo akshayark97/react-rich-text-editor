@@ -1,0 +1,30 @@
+.customContainer {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: -80px;
+  margin-top: 30px;
+}
+
+.customTitle {
+  font-weight: bold;
+}
+
+.editorContainer {
+  border: 1px solid black;
+  height: 500px;
+  width: auto;
+  padding: 30px;
+  margin: 100px;
+}
+
+.saveButton {
+  padding: 5px 15px;
+  font-weight: "bold";
+  background-color: "white";
+  border-left: 1px solid #000;
+  border-top: 1px solid #000;
+  border-bottom: 4px solid #000;
+  border-right: 4px solid #000;
+  background-color: #fff;
+  font-weight: bold;
+}

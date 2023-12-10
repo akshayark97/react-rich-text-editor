@@ -1,28 +1,36 @@
 import React, { useState } from "react";
-import { Editor, EditorState, Modifier, RichUtils } from "draft-js";
+import {
+  Editor,
+  EditorState,
+  Modifier,
+  RichUtils,
+  convertFromRaw,
+  convertToRaw,
+} from "draft-js";
 import "draft-js/dist/Draft.css";
 
-const CustomEditor = () => {
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+import "./customEditor.css";
+import Button from "./Button";
 
-  const focus = () => editorRef.current.focus();
+const CustomEditor = () => {
+  const [editorState, setEditorState] = useState(() => {
+    // Load from local storage or create an empty EditorState
+    const storedContent = localStorage.getItem("editorContent");
+    return storedContent
+      ? EditorState.createWithContent(convertFromRaw(JSON.parse(storedContent)))
+      : EditorState.createEmpty();
+  });
 
   const editorRef = React.createRef();
-
-  // const handleEditorChange = (newEditorState) => {
-  //   setEditorState(newEditorState);
-  // };
 
   const handleBeforeInput = (char) => {
     const selection = editorState.getSelection();
     const contentState = editorState.getCurrentContent();
     const block = contentState.getBlockForKey(selection.getStartKey());
     const text = block.getText();
-    console.log("text", text, block);
+
     if (text === "#" || (char === " " && text.includes("#"))) {
       if (char === " ") {
-        console.log("char", char, block.getText());
-
         if (text.length > 1 && text[0] === "#") {
           const newText = text.slice(1);
           const newContentState = Modifier.replaceText(
@@ -109,7 +117,6 @@ const CustomEditor = () => {
       }
     } else if (text === "**" && char === " ") {
       if (char === " ") {
-        console.log(char);
         const selection = editorState.getSelection();
         const contentState = editorState.getCurrentContent();
         const block = contentState.getBlockForKey(selection.getStartKey());
@@ -163,7 +170,6 @@ const CustomEditor = () => {
       return "not-handled";
     } else if (text === "***" && char === " ") {
       if (char === " ") {
-        console.log(char);
         const selection = editorState.getSelection();
         const contentState = editorState.getCurrentContent();
         const block = contentState.getBlockForKey(selection.getStartKey());
@@ -218,16 +224,30 @@ const CustomEditor = () => {
     }
   };
 
+  const handleSave = () => {
+    // Save the editor content to local storage whenever it changes
+    const contentState = editorState.getCurrentContent();
+    const contentStateJSON = JSON.stringify(convertToRaw(contentState));
+    localStorage.setItem("editorContent", contentStateJSON);
+  };
+
   return (
     <div>
-      <Editor
-        customStyleMap={colorStyleMap}
-        editorState={editorState}
-        handleBeforeInput={(char) => handleBeforeInput(char)}
-        onChange={setEditorState}
-        placeholder="Write something colorful..."
-        ref={editorRef}
-      />
+      <div className="customContainer">
+        <div></div>
+        <div className="customTitle">Portle</div>
+        <Button onSubmitSave={handleSave} />
+      </div>
+      <div className="editorContainer">
+        <Editor
+          customStyleMap={colorStyleMap}
+          editorState={editorState}
+          handleBeforeInput={(char) => handleBeforeInput(char)}
+          onChange={setEditorState}
+          placeholder="Write something colorful..."
+          ref={editorRef}
+        />
+      </div>
     </div>
   );
 };

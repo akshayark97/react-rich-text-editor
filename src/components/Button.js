@@ -1,10 +1,12 @@
 import React from "react";
 
-export const Button = () => {
+import './customEditor.css'
+
+export const Button = ({ onSubmitSave }) => {
   return (
-    <div className="saveButton">
-      <button>Save</button>
-    </div>
+    <button className="saveButton" onClick={onSubmitSave}>
+      Save
+    </button>
   );
 };
 
