@@ -73,49 +73,49 @@ const CustomEditor = () => {
 
       return "not-handled";
     } else if (text === "*" && char === " ") {
-      if (text.length > 1 && text[0] === "* ") {
-        const newText = text.slice(1);
-        const newContentState = Modifier.replaceText(
-          contentState,
-          selection.merge({
-            anchorOffset: 0,
-            focusOffset: text.length,
-          }),
-          newText
-        );
+        if (text.length > 1 && text[0] === "* ") {
+          const newText = text.slice(1);
+          const newContentState = Modifier.replaceText(
+            contentState,
+            selection.merge({
+              anchorOffset: 0,
+              focusOffset: text.length,
+            }),
+            newText
+          );
 
-        const newEditorState = EditorState.push(
-          editorState,
-          newContentState,
-          "replace-text"
-        );
+          const newEditorState = EditorState.push(
+            editorState,
+            newContentState,
+            "replace-text"
+          );
 
-        setEditorState(newEditorState);
-        return "handled";
-      }
+          setEditorState(newEditorState);
+          return "handled";
+        }
 
-      if (text === "*") {
-        // Convert to Heading 1
-        const newText = text.slice(2);
-        const newContentState = Modifier.replaceText(
-          contentState,
-          selection.merge({
-            anchorOffset: 0,
-            focusOffset: text.length,
-          }),
-          newText
-        );
+        if (text === "*") {
+          // Convert to Heading 1
+          const newText = text.slice(2);
+          const newContentState = Modifier.replaceText(
+            contentState,
+            selection.merge({
+              anchorOffset: 0,
+              focusOffset: text.length,
+            }),
+            newText
+          );
 
-        const newEditorState = EditorState.push(
-          editorState,
-          newContentState,
-          "replace-text"
-        );
+          const newEditorState = EditorState.push(
+            editorState,
+            newContentState,
+            "replace-text"
+          );
 
-        setEditorState(RichUtils.toggleInlineStyle(newEditorState, "BOLD"));
-        return "handled";
-      }
-    } else if (text === "**" && char === " ") {
+          setEditorState(RichUtils.toggleInlineStyle(newEditorState, "BOLD"));
+          return "handled";
+        }
+          } else if (text === "**" && char === " ") {
       if (char === " ") {
         const selection = editorState.getSelection();
         const contentState = editorState.getCurrentContent();
@@ -221,6 +221,56 @@ const CustomEditor = () => {
         }
       }
       return "not-handled";
+    } else if (text === "```" && char === " ") {
+      // Remove the "```"
+      const selection = editorState.getSelection();
+      const contentState = editorState.getCurrentContent();
+      const block = contentState.getBlockForKey(selection.getStartKey());
+      const text = block.getText();
+
+      if (text === "```" && char === " ") {
+        debugger;
+        // Remove the "```"
+        const withoutBackticks = text.slice(0, -3);
+        const newContentState = Modifier.replaceText(
+          contentState,
+          selection.merge({
+            anchorOffset: 0,
+            focusOffset: text.length,
+          }),
+          withoutBackticks
+        );
+
+        const newEditorState = EditorState.push(
+          editorState,
+          newContentState,
+          "replace-text"
+        );
+
+        // Add a new block with code block type and gray background
+        const codeBlockSelection = newEditorState.getSelection();
+        const codeBlockContentState = newEditorState.getCurrentContent();
+        const codeBlockKey = codeBlockSelection.getStartKey();
+        const codeBlockBlock =
+          codeBlockContentState.getBlockForKey(codeBlockKey);
+
+        if (codeBlockBlock.getType() !== "code-block") {
+          const newCodeBlockContentState = Modifier.setBlockType(
+            codeBlockContentState,
+            codeBlockSelection,
+            "code-block"
+          );
+
+          const newCodeBlockEditorState = EditorState.push(
+            newEditorState,
+            newCodeBlockContentState,
+            "change-block-type"
+          );
+
+          setEditorState(newCodeBlockEditorState);
+          return "handled";
+        }
+      }
     }
   };
 
